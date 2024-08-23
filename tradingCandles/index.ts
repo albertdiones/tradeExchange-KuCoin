@@ -28,7 +28,7 @@ export interface BasicCandle {
 export interface tickerData {
     symbol: string,
     current: number,
-    open: number,
+    open?: number,
     high: number,
     low: number,
     base_volume: number,

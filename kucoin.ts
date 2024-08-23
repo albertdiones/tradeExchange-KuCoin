@@ -58,30 +58,34 @@ class KuCoin implements Exchange {
   }
 
   async getPriceData(symbol: String): Promise<{data: tickerData,fromCache: Boolean} | null> {
-      const url = `https://www.XXXXXXXX/v2/support/info/announce/listProject`;
+      const url = `https://www.kucoin.com/_api/market-front/trade/search?currentPage=1&pageSize=1500&returnAll=true&lang=en_US`;
 
       const symbolNeedle = symbol.toLowerCase().replace('-','_');
   
       return this.client.getWithCache(url).then(
           ({response,fromCache}) => {
-              if (response.msg) {
-                this.logger.warn(`(${response.code}) ${response.msg} for ${url}`);
-              }
-              if (response.code === '51001') {
-                return null;
-              }
-              if (response.code === '50011') {
+
+              const data = response?.data?.currencies?.items.find(
+                (product: {symbolCode: string}) => {
+                  return product.symbolCode === symbol;
+                }
+              );
+
+              if (!data) {
                 return null;
               }
 
-              const data = response.data.list.find(item => item.symbol === symbolNeedle);
+              if (data.last === null) {
+                this.logger.warn(`Error: price is null for symbol ${symbol}`);
+                return null;
+              }
 
               if (!data) {
                 this.logger.warn(`No data found for symbol ${symbol}`);
                 return null;
               }
 
-              if (!data.volume) {
+              if (!data.volValue) {
                 this.logger.warn(`No quote_volume data found for symbol ${symbol}`);
                 return null;
               }
@@ -90,13 +94,13 @@ class KuCoin implements Exchange {
                 data: {
                   symbol: symbol,
                   current: data.last,
-                  open: data.open,
-                  high: data.dayHigh,
-                  low: data.dayLow,
-                  quote_volume: data.volume,
-                  circulating_supply: data.flowTotal,
+                  open: null,
+                  high: data.high,
+                  low: data.low,
+                  quote_volume: data.volValue,
+                  circulating_supply: data.marketValue/data.last,
                   status: 'TRADING',
-                  full_data: data
+                  full_data: response.data
                 },
                 fromCache
               };
