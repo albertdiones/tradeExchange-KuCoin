@@ -124,17 +124,17 @@ class KuCoin implements Exchange {
   _minutesToInterval(minutes: number) {
     switch (minutes) {
       case 1:
-        return "1m";
+        return "1min";
       case 3:
-        return "3m";
+        return "3min";
       case 5:
-        return "5m";
+        return "5min";
       case 15:
-        return "15m";
+        return "15min";
       case 1440:
-        return "1D";
+        return "1day";
       case 10080:
-        return "1W";
+        return "1week";
       default:
         this.logger.error(`Unsupported interval minutes: ${minutes} `);
     }
@@ -145,40 +145,39 @@ class KuCoin implements Exchange {
         logger.error('Invalid symbol passed', symbol);
         return Promise.resolve([]);
       }
-      if (!limit) {
-        limit = 100; 
-      }
+      const endAt = Date.now()/1000;
+      const startAt = endAt - (minutes*60*limit);
       const interval = this._minutesToInterval(minutes);      
-      const url = 'https://www.XXXXXXXX/api/v5/market/candles?limit=' + limit + '&instId=' + symbol + '&bar=' + interval;
+      const url = `https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${Math.floor(startAt)}&endAt=${Math.floor(endAt)}`;
       return this.client.getNoCache(url)
         .then(
-          (response) => {
+          (response: { data: string[][] }) => {
             if (!response) {
                 this.logger.warn(`Failed to get candles for ${symbol} ${minutes} minutes interval`);
                 return [];
             }
             const candles = response.data;
             
-            if (response.msg) {
-              this.logger.warn(`(${response.code}) ${response.msg} for ${url}`);
-            }
-
             if (!Array.isArray(candles)) {
+              console.error('error', candles, response, );
+              // error?
               return null;
             }
+
     
             return candles // latest first
               .map(
                 (candle): rawExchangeCandle => {
+                  const open_timestamp = parseInt(candle[0])*1000;
                   return {
                     'open': parseFloat(candle[1]),
-                    'high': parseFloat(candle[2]),
-                    'low': parseFloat(candle[3]),
-                    'close': parseFloat(candle[4]),
+                    'high': parseFloat(candle[3]),
+                    'low': parseFloat(candle[4]),
+                    'close': parseFloat(candle[2]),
                     'base_volume': parseFloat(candle[5]),
                     'quote_volume': parseFloat(candle[6]),
-                    'open_timestamp': parseInt(candle[0]),
-                    'close_timestamp': parseInt(candle[0]) + (minutes * 60000) - 1,
+                    'open_timestamp': open_timestamp,
+                    'close_timestamp': open_timestamp + (minutes * 60000) - 1,
                   };
                 }
               );
