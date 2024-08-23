@@ -1,0 +1,15 @@
+{
+  "name": "tradeexchanges-kucoin",
+  "module": "kucoin.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "add_logger": "^0.0.23",
+    "cache-via-redis": "^0.0.1"
+  }
+}
