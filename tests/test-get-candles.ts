@@ -1,5 +1,5 @@
 import Logger from "add_logger";
-import KuCoin from "./kucoin";
+import KuCoin from "../kucoin";
 import cacheViaRedis from "cache-via-redis";
 import XhrJson from "./xhrjson";
 
