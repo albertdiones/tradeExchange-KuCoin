@@ -37,7 +37,7 @@ class KuCoin implements Exchange {
   }
 
   async getAssets(): Promise<string[]> {
-    this.logger.info("Getting Assets from okx...");
+    this.logger.info("Getting assets...");
     return this.client
     .getWithCache('https://api.kucoin.com/api/v3/currencies').then(
         ({response}) => {
