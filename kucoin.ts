@@ -90,7 +90,7 @@ class KuCoin implements Exchange {
                 return null;
               }
 
-              const tickerDataValue: TickerData = {
+              const tickerData: TickerData = {
                 symbol: symbol,
                 current: data.last,
                 high: data.high,
@@ -103,7 +103,7 @@ class KuCoin implements Exchange {
               };
             
               return {
-                data: tickerDataValue,
+                data: tickerData,
                 fromCache
               };
           }
@@ -156,7 +156,9 @@ class KuCoin implements Exchange {
       const url = `https://api.kucoin.com/api/v1/market/candles?type=${interval}&symbol=${symbol}&startAt=${Math.floor(startAt)}&endAt=${Math.floor(endAt)}`;
       return this.client.getNoCache(url)
         .then(
-          (response: { data: string[][] }) => {
+          (responseObject) => {
+
+            const response = responseObject as { data: string[][] };
             if (!response) {
                 this.logger.warn(`Failed to get candles for ${symbol} ${minutes} minutes interval`);
                 return [];
