@@ -1,7 +1,8 @@
 import Logger from "add_logger";
-import KuCoin from "./kucoin";
+import KuCoin from "../kucoin";
 import cacheViaRedis from "cache-via-redis";
 import XhrJson from "tradeExchanges/xhrjson";
+import {describe, expect, test} from '@jest/globals';
 
 
 class CacheViaNothing {
@@ -27,7 +28,10 @@ const exchange = new KuCoin({
         maxRandomPreRequestTimeout: 2000
     })
 });
+test('get assets from KuCoin', async () => {
+    const assets: string[] = await exchange.getAssets();
 
-// ['BTC','ETH','XRP']
-const assets = await exchange.getAssets();
-console.log(assets.length, assets);
+    expect(assets).toEqual(expect.arrayContaining(["BTC", "ETH", "XRP"]));
+
+    expect(assets).not.toEqual(expect.arrayContaining(["ALBERTO"]));
+});
