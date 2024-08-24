@@ -37,12 +37,12 @@ class KuCoin implements Exchange {
   }
 
   async getAssets(): Promise<string[]> {
-    logger.info("Getting Assets from okx...");
+    this.logger.info("Getting Assets from okx...");
     return this.client
     .getWithCache('https://api.kucoin.com/api/v3/currencies').then(
         ({response}) => {
           if (!response || !response.data) {
-            logger.error("Failed to get products");
+            this.logger.error("Failed to get products");
             throw "Response is invalid";
           }
           return [...new Set(
@@ -142,7 +142,7 @@ class KuCoin implements Exchange {
 
   async fetchCandlesFromExchange(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null> {
       if (!symbol) {
-        logger.error('Invalid symbol passed', symbol);
+        this.logger.error('Invalid symbol passed', symbol);
         return Promise.resolve([]);
       }
       const endAt = Date.now()/1000;
@@ -192,7 +192,5 @@ class KuCoin implements Exchange {
     return baseAsset + '-USDT';
   }
 }
-
-const logger = new Logger('candle_updates');
 
 export default KuCoin;
