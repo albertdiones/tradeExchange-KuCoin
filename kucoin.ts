@@ -5,7 +5,7 @@ import type {rawExchangeCandle, tickerData } from "./tradingCandles";
 export interface Exchange {
   fetchCandlesFromExchange(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null>;
   getAssets(): Promise<string[]>;
-  getPriceData(symbol: string): Promise<{data: tickerData,fromCache: Boolean} | null>;
+  getTickerData(symbol: string): Promise<{data: tickerData,fromCache: Boolean} | null>;
   _candleCountFromCloseTimestamp(timestamp: number, minutes: number): number; // todo: figure out if to move or remove this
   getUsdtSymbol(baseAsset: string): string | null;
 }
@@ -39,25 +39,25 @@ class KuCoin implements Exchange {
   async getAssets(): Promise<string[]> {
     this.logger.info("Getting assets...");
     return this.client
-    .getWithCache('https://api.kucoin.com/api/v3/currencies').then(
-        ({response}) => {
-          if (!response || !response.data) {
-            this.logger.error("Failed to get products");
-            throw "Response is invalid";
-          }
-          return [...new Set(
-              response.data.map(
-                (product: {currency: string}) => {
-                  return product.currency
-                }
+      .getWithCache('https://api.kucoin.com/api/v3/currencies').then(
+          ({response}) => {
+            if (!response?.data) {
+              this.logger.error("Failed to get products");
+              throw "Response is invalid";
+            }
+            return [...new Set(
+                response.data.map(
+                  (product: {currency: string}) => {
+                    return product.currency
+                  }
+                )
               )
-            )
-          ];
-        }
-      );
+            ];
+          }
+        );
   }
 
-  async getPriceData(symbol: String): Promise<{data: tickerData,fromCache: Boolean} | null> {
+  async getTickerData(symbol: String): Promise<{data: tickerData,fromCache: Boolean} | null> {
       const url = `https://www.kucoin.com/_api/market-front/trade/search?currentPage=1&pageSize=1500&returnAll=true&lang=en_US`;
 
       const symbolNeedle = symbol.toLowerCase().replace('-','_');
@@ -115,9 +115,12 @@ class KuCoin implements Exchange {
 
     // for appending candles, how many candles should we fetch?
     const age = (Date.now() - timestamp)/1000;
+
+    // if the latest candle is just 100ms old, just skip the update
     if (age < 100) {
       return 0;
     }
+    
     return Math.ceil(age/(minutes*60));
   }
 

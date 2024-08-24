@@ -31,7 +31,7 @@ const exchange = new KuCoin({
 const symbol = exchange.getUsdtSymbol('BTC');
 
 if (symbol) {
-    const priceData = await exchange.getPriceData(symbol);
+    const priceData = await exchange.getTickerData(symbol);
     
     // {"symbol": "BTC-USDT","current": 60123, "low24h":59123, "high24h": 61123}
     console.log(priceData);
