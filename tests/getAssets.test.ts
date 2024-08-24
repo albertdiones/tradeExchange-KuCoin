@@ -3,20 +3,8 @@ import KuCoin from "../kucoin";
 import cacheViaRedis from "cache-via-redis";
 import XhrJson from "tradeExchanges/xhrjson";
 import {describe, expect, test} from '@jest/globals';
+import { CacheViaNothing } from "./cacheViaNothing";
 
-
-class CacheViaNothing {
-    async getItem(key: string): Promise<string | null> {
-        return null;
-    }
-
-    setItem(
-        key: string, 
-        value: string,
-        expirationSeconds: number
-    ): void { 
-    }
-}
 
 
 const exchange = new KuCoin({
@@ -28,6 +16,7 @@ const exchange = new KuCoin({
         maxRandomPreRequestTimeout: 2000
     })
 });
+
 test('get assets from KuCoin', async () => {
     const assets: string[] = await exchange.getAssets();
 
