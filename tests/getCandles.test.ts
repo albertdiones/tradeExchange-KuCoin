@@ -1,20 +1,9 @@
 import Logger from "add_logger";
 import KuCoin from "../kucoin";
 import XhrJson from "tradeExchanges/xhrjson";
+import {describe, expect, test} from '@jest/globals';
+import { CacheViaNothing } from "./cacheViaNothing";
 
-
-class CacheViaNothing {
-    async getItem(key: string): Promise<string | null> {
-        return null;
-    }
-
-    setItem(
-        key: string, 
-        value: string,
-        expirationSeconds: number
-    ): void { 
-    }
-}
 
 
 const exchange = new KuCoin({
@@ -27,11 +16,14 @@ const exchange = new KuCoin({
     })
 });
 
-const symbol = exchange.getUsdtSymbol('BTC');
 
-if (symbol) {
-    const candles = await exchange.fetchCandlesFromExchange(symbol, 1,1500);
-    
-    // {"symbol": "BTC-USDT","current": 60123, "low24h":59123, "high24h": 61123}
-    console.log(candles);
-}
+test('get BTC ticker data from KuCoin', async () => {
+    const symbol = exchange.getUsdtSymbol('BTC');
+
+    const limit = 150;
+
+    const candles = await exchange.fetchCandlesFromExchange(symbol, 1, limit);
+
+    expect(candles).toHaveLength(limit);
+});
+
