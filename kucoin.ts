@@ -45,19 +45,19 @@ class KuCoin implements Exchange {
               this.logger.error("Failed to get products");
               throw "Response is invalid";
             }
-            return [...new Set(
-                response.data.map(
-                  (product: {currency: string}) => {
-                    return product.currency
-                  }
-                )
-              )
-            ];
+
+            const assets = response.data.map(
+              (product: {currency: string}) => product.currency
+            );
+            
+            return Array.from(
+              new Set(assets)
+            );
           }
         );
   }
 
-  async getTickerData(symbol: String): Promise<{data: tickerData,fromCache: Boolean} | null> {
+  async getTickerData(symbol: string): Promise<{data: tickerData,fromCache: Boolean} | null> {
       const url = `https://www.kucoin.com/_api/market-front/trade/search?currentPage=1&pageSize=1500&returnAll=true&lang=en_US`;
 
       const symbolNeedle = symbol.toLowerCase().replace('-','_');
@@ -89,19 +89,21 @@ class KuCoin implements Exchange {
                 this.logger.warn(`No quote_volume data found for symbol ${symbol}`);
                 return null;
               }
+
+              const tickerDataValue: tickerData = {
+                symbol: symbol,
+                current: data.last,
+                high: data.high,
+                low: data.low,
+                base_volume: data.vol,
+                quote_volume: data.volValue,
+                circulating_supply: data.marketValue/data.last,
+                status: 'TRADING',
+                full_data: response.data
+              };
             
               return {
-                data: {
-                  symbol: symbol,
-                  current: data.last,
-                  open: null,
-                  high: data.high,
-                  low: data.low,
-                  quote_volume: data.volValue,
-                  circulating_supply: data.marketValue/data.last,
-                  status: 'TRADING',
-                  full_data: response.data
-                },
+                data: tickerDataValue,
                 fromCache
               };
           }
