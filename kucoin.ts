@@ -1,11 +1,11 @@
 import XhrJson from "./xhrjson";
 import {Logger} from "add_logger"
-import type {rawExchangeCandle, tickerData } from "./tradingCandles";
+import type {rawExchangeCandle, TickerData } from "./tradingCandles";
 
 export interface Exchange {
   fetchCandlesFromExchange(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null>;
   getAssets(): Promise<string[]>;
-  getTickerData(symbol: string): Promise<{data: tickerData,fromCache: Boolean} | null>;
+  getTickerData(symbol: string): Promise<{data: TickerData,fromCache: Boolean} | null>;
   _candleCountFromCloseTimestamp(timestamp: number, minutes: number): number; // todo: figure out if to move or remove this
   getUsdtSymbol(baseAsset: string): string | null;
 }
@@ -57,7 +57,7 @@ class KuCoin implements Exchange {
         );
   }
 
-  async getTickerData(symbol: string): Promise<{data: tickerData,fromCache: Boolean} | null> {
+  async getTickerData(symbol: string): Promise<{data: TickerData,fromCache: Boolean} | null> {
       const url = `https://www.kucoin.com/_api/market-front/trade/search?currentPage=1&pageSize=1500&returnAll=true&lang=en_US`;
 
       const symbolNeedle = symbol.toLowerCase().replace('-','_');
@@ -90,7 +90,7 @@ class KuCoin implements Exchange {
                 return null;
               }
 
-              const tickerDataValue: tickerData = {
+              const tickerDataValue: TickerData = {
                 symbol: symbol,
                 current: data.last,
                 high: data.high,

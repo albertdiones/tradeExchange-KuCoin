@@ -25,7 +25,7 @@ export interface BasicCandle {
 }
 
 // ticker data for today
-export interface tickerData {
+export interface TickerData {
     symbol: string,
     current: number,
     open?: number,
