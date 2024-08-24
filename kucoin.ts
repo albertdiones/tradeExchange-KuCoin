@@ -1,4 +1,7 @@
 import {Logger} from "add_logger"
+import type { Exchange } from "tradeExchanges";
+import type { rawExchangeCandle, TickerData } from "tradeExchanges/tradingCandles";
+import type XhrJson from "tradeExchanges/xhrjson";
 
 class KuCoin implements Exchange {
   logger: any;
@@ -64,7 +67,7 @@ class KuCoin implements Exchange {
                 return null;
               }
 
-              if (data.last === null) {
+              if (data.lastTradePrice === null) {
                 this.logger.warn(`Error: price is null for symbol ${symbol}`);
                 return null;
               }
@@ -81,10 +84,10 @@ class KuCoin implements Exchange {
 
               const tickerData: TickerData = {
                 symbol: symbol,
-                current: data.last,
+                current: data.lastTradePrice,
                 high: data.high,
                 low: data.low,
-                base_volume: data.vol,
+                base_volume: data.volValue/data.lastTradePrice,
                 quote_volume: data.volValue,
                 circulating_supply: data.marketValue/data.last,
                 status: 'TRADING',
