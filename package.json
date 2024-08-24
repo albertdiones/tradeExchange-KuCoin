@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "add_logger": "^0.0.23",
-    "cache-via-redis": "^0.0.1"
+    "cache-via-redis": "^0.0.1",
+    "tradeExchanges": "git+ssh://git@github.com/albertdiones/tradeExchanges.git"
   }
 }
