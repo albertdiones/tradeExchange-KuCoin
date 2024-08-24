@@ -1,21 +1,9 @@
 import Logger from "add_logger";
 import KuCoin from "./kucoin";
 import cacheViaRedis from "cache-via-redis";
-import XhrJson from "./xhrjson";
+import XhrJson from "tradeExchanges/xhrjson";
+import { CacheViaNothing } from "./tests/cacheViaNothing";
 
-
-class CacheViaNothing {
-    async getItem(key: string): Promise<string | null> {
-        return null;
-    }
-
-    setItem(
-        key: string, 
-        value: string,
-        expirationSeconds: number
-    ): void { 
-    }
-}
 
 
 const exchange = new KuCoin({
