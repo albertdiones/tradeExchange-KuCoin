@@ -1,9 +1,9 @@
 import {Logger, type LoggerInterface} from "add_logger"
-import type { Exchange, CandleFetcher, TickerFetcher } from "tradeExchanges";
+import type { Exchange, CandleFetcher, TickerFetcher, AssetWallet, AssetHolding } from "tradeExchanges";
 import type { rawExchangeCandle, TickerData } from "tradeExchanges/tradingCandles";
 import type HttpClient from "nonChalantJs";
 
-export class KuCoin implements CandleFetcher, TickerFetcher {
+export class KuCoin implements CandleFetcher, TickerFetcher, AssetWallet {
   logger: LoggerInterface;
   client: HttpClient;
   correctCandleFieldTypes: Array<string> = [
@@ -28,7 +28,12 @@ export class KuCoin implements CandleFetcher, TickerFetcher {
       this.client=client;
   }
 
+  // @deprecated use getSupportedAssets();
   async getAssets(): Promise<string[]> {
+    return this.getSupportedAssets();
+  }
+
+  async getSupportedAssets(): Promise<string[]> {
     this.logger.info("Getting assets...");
     return this.client
       .getWithCache('https://api.kucoin.com/api/v3/currencies').then(
@@ -222,6 +227,24 @@ export class KuCoin implements CandleFetcher, TickerFetcher {
     }
     return baseAsset + '-USDT';
   }
+
+  getHoldings(): Promise<AssetHolding[]> {
+    return this._fetchWithHeaders(
+      '/api/v1/accounts/ledgers',
+    ).then(
+      ({items}) => {
+        return items.map(
+          (item): AssetHolding => {
+            return {
+              name: item.currency,
+              amount: item.balance;
+            }
+          }
+        )
+      }
+    )
+  }
+
 
 }
 
