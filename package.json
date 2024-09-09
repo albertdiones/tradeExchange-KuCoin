@@ -7,11 +7,12 @@
     "jest": "^29.7.0"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "add_logger": "^0.0.23",
     "cache-via-redis": "^0.0.1",
-    "tradeExchanges": "git+ssh://git@github.com/albertdiones/tradeExchanges.git"
+    "nonChalantJs": "https://github.com/albertdiones/nonChalant.git",
+    "tradeexchanges": "https://github.com/albertdiones/tradeExchanges.git"
   }
 }
