@@ -1,11 +1,11 @@
-import {Logger} from "add_logger"
+import {Logger, type LoggerInterface} from "add_logger"
 import type { Exchange, CandleFetcher, TickerFetcher } from "tradeExchanges";
 import type { rawExchangeCandle, TickerData } from "tradeExchanges/tradingCandles";
-import type XhrJson from "tradeExchanges/xhrjson";
+import type HttpClient from "nonChalantJs";
 
-class KuCoin implements CandleFetcher, TickerFetcher {
-  logger: any;
-  client: XhrJson;
+export class KuCoin implements CandleFetcher, TickerFetcher {
+  logger: LoggerInterface;
+  client: HttpClient;
   correctCandleFieldTypes: Array<string> = [
     "number", 
     "string",
@@ -23,9 +23,9 @@ class KuCoin implements CandleFetcher, TickerFetcher {
 
   correctCandleFieldCount = 12;
 
-  constructor(params: {logger: Logger, client: XhrJson}) {
+  constructor(client: HttpClient , params: {logger: LoggerInterface}) {
       this.logger=params.logger;
-      this.client=params.client;
+      this.client=client;
   }
 
   async getAssets(): Promise<string[]> {
@@ -184,13 +184,21 @@ class KuCoin implements CandleFetcher, TickerFetcher {
         );
   }
 
-
+  async fetchCandlesFromExchange(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null> {
+    return this.fetchCandles(symbol,minutes,limit);
+  }
+  
   
   getTickerSymbols(): Promise<string[]> {
     throw new Error("Method not implemented.");
   }
 
-  
+  // @deprecated use getAssetDefaultTickerSymbol()
+  getUsdtSymbol(baseAsset: string): string | null {
+    return this.getAssetDefaultTickerSymbol(baseAsset);
+  }
+
+
   getAssetDefaultTickerSymbol(baseAsset: string): string | null {
     if (baseAsset === 'USDT') {
       return null;

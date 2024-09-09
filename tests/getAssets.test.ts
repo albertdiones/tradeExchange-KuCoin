@@ -1,21 +1,6 @@
-import Logger from "add_logger";
-import KuCoin from "../kucoin";
-import cacheViaRedis from "cache-via-redis";
-import XhrJson from "tradeExchanges/xhrjson";
 import {describe, expect, test} from '@jest/globals';
-import { CacheViaNothing } from "./cacheViaNothing";
+import { exchange } from "./setup";
 
-
-
-const exchange = new KuCoin({
-    logger: new Logger('kucoin'), 
-    client: new XhrJson({
-        logger: new Logger('http_client'), 
-        cache: new CacheViaNothing(), 
-        minTimeoutPerRequest: 100,
-        maxRandomPreRequestTimeout: 2000
-    })
-});
 
 test('get assets from KuCoin', async () => {
     const assets: string[] = await exchange.getAssets();

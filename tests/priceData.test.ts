@@ -1,9 +1,6 @@
-import Logger from "add_logger";
-import KuCoin from "../kucoin";
-import cacheViaRedis from "cache-via-redis";
-import XhrJson from "tradeExchanges/xhrjson";
-import { CacheViaNothing } from "./cacheViaNothing";
+import {exchange} from "./setup";
 import {describe, expect, test} from '@jest/globals';
+
 
 
 async function cryptoPrice(asset: string): Promise<string> {
@@ -12,39 +9,31 @@ async function cryptoPrice(asset: string): Promise<string> {
     );  
 }
   
-
-
-const exchange = new KuCoin({
-    logger: new Logger('kucoin'), 
-    client: new XhrJson({
-        logger: new Logger('http_client'), 
-        cache: new CacheViaNothing(), 
-        minTimeoutPerRequest: 100,
-        maxRandomPreRequestTimeout: 2000
-    })
-});
-
-
-
-
 test('get BTC ticker data from KuCoin', async () => {
-    const symbol = exchange.getUsdtSymbol('BTC');
+    const symbol = exchange.getAssetDefaultTickerSymbol('BTC');
 
     expect(symbol).not.toBeNull();
 
-    const priceData = await exchange.getTickerData(symbol as string);
+    const response = await exchange.getTickerData(symbol as string);
+
+    expect(response).not.toBeFalsy();
+
+    const priceData = response?.data;
 
     expect(priceData).not.toBeFalsy();
-
-    expect(priceData?.data).not.toBeFalsy();
-    expect(priceData?.data?.current).not.toBeFalsy();
+    expect(priceData?.current).not.toBeFalsy();
+    expect(priceData?.quote_volume).not.toBeFalsy();
 
     const alternativeSourcePrice = parseFloat(await cryptoPrice('BTC'));
     
-    const exchangePrice = priceData?.data.current*1;
+    const exchangePrice = priceData?.current*1;
+    
+    const tolerance = parseFloat(process.env.TEST_PRICE_CHECK_TOLERANCE);
+    const ceilingPrice = alternativeSourcePrice*(1+tolerance);
+    const floorPrice = alternativeSourcePrice*(1-tolerance);
 
-    expect(exchangePrice).toBeGreaterThanOrEqual(alternativeSourcePrice * 0.995);
-    expect(exchangePrice).toBeLessThanOrEqual(alternativeSourcePrice * 1.005);
+    expect(exchangePrice).toBeGreaterThanOrEqual(floorPrice);
+    expect(exchangePrice).toBeLessThanOrEqual(ceilingPrice);
 
     console.log(exchangePrice, alternativeSourcePrice);
 });
