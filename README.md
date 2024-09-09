@@ -1,15 +1,10 @@
 # tradeexchanges-kucoin
 
-To install dependencies:
 
-```bash
-bun install
-```
+KuCoin implementation of tradeExchange abstracts and interface
 
-To run:
 
-```bash
-bun run kucoin.ts
-```
-
-This project was created using `bun init` in bun v1.1.21. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Todos:
+  * getTickerSymbols()
+  * implement AssetWallet
+  * implement OrderHandler
