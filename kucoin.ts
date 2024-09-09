@@ -1,9 +1,9 @@
 import {Logger} from "add_logger"
-import type { Exchange } from "tradeExchanges";
+import type { Exchange, CandleFetcher, TickerFetcher } from "tradeExchanges";
 import type { rawExchangeCandle, TickerData } from "tradeExchanges/tradingCandles";
 import type XhrJson from "tradeExchanges/xhrjson";
 
-class KuCoin implements Exchange {
+class KuCoin implements CandleFetcher, TickerFetcher {
   logger: any;
   client: XhrJson;
   correctCandleFieldTypes: Array<string> = [
@@ -137,7 +137,7 @@ class KuCoin implements Exchange {
     }
   }
 
-  async fetchCandlesFromExchange(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null> {
+  async fetchCandles(symbol: string, minutes: number, limit: number): Promise<rawExchangeCandle[] | null> {
       if (!symbol) {
         this.logger.error('Invalid symbol passed', symbol);
         return Promise.resolve([]);
@@ -184,12 +184,20 @@ class KuCoin implements Exchange {
         );
   }
 
-  getUsdtSymbol(baseAsset: string): string | null {
+
+  
+  getTickerSymbols(): Promise<string[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  
+  getAssetDefaultTickerSymbol(baseAsset: string): string | null {
     if (baseAsset === 'USDT') {
       return null;
     }
     return baseAsset + '-USDT';
   }
+
 }
 
 export default KuCoin;
