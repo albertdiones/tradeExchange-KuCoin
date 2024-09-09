@@ -190,7 +190,24 @@ export class KuCoin implements CandleFetcher, TickerFetcher {
   
   
   getTickerSymbols(): Promise<string[]> {
-    throw new Error("Method not implemented.");
+    this.logger.info("Getting tickers...");
+    return this.client
+      .getWithCache('https://api.kucoin.com/api/v1/market/allTickers').then(
+          ({response}) => {
+            if (!response?.data) {
+              this.logger.error("Failed to get tickers");
+              throw "Response is invalid";
+            }
+
+            const assets = response.data.ticker.map(
+              (product: {symbol: string}) => product.symbol
+            );
+            
+            return Array.from(
+              new Set(assets)
+            );
+          }
+        );
   }
 
   // @deprecated use getAssetDefaultTickerSymbol()
